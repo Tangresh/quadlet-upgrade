@@ -1,0 +1,6 @@
+basic_auth_users:
+  # Tyt92iwUmNs3xcnFQCf8
+  prometheus: $2b$12$ydwGq26Tp6MRw9yERvcRRe46aSPGWJkH/mgzuefoGvA90.ywHCg6m
+  # vrBC6AHMisV5nlcxp7xWs
+  grafana: $2b$12$Yn/YP2a3qZNA.3R5u7inD.KFbvMKCedjJQSsaaa1x8mQfdMEN5uqW
+  tangresh: $2b$12$i8TBuqakLTqytyUUNqlJruBRKBpclLO1g2pZRphFP3Gtv.IF3xGwS

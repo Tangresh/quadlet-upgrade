@@ -1,0 +1,44 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: prometheus
+    quadletName: quadlet-upgrade-test
+  name: prometheus
+spec:
+  containers:
+  - name: prometheus
+    image: docker.io/prom/prometheus:v3.3.1
+    command:
+    - '/bin/prometheus'
+    - '--config.file=/etc/prometheus/prometheus.yml'
+    - '--storage.tsdb.path=/prometheus'
+    - '--web.config.file=/etc/prometheus/prometheus-web.yml'
+    - '--web.external-url=https://monitoring.tangresh.ch'
+    - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+    - '--web.console.templates=/usr/share/prometheus/consoles'
+    - '--web.enable-lifecycle'
+    volumeMounts:
+    - mountPath: /etc/prometheus/
+      name: prometheus-config
+    - mountPath: /prometheus
+      name: prometheus-data
+    dnsConfig:
+      nameservers:
+      - 10.0.0.10
+    ports:
+    - containerPort: 9090
+      hostIP: 127.0.0.14
+      hostPort: 8080
+    securityContext:
+      runAsUser: 974
+  hostUsers: true
+  volumes:
+  - name: prometheus-config
+    hostPath:
+      path: /home/tangresh/quadlet-upgrade/test/_data/prometheus/config
+      type: Directory
+  - name: prometheus-data
+    hostPath:
+      path: /home/tangresh/quadlet-upgrade/test/_data/prometheus/data
+      type: Directory

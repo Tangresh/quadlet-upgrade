@@ -1,0 +1,30 @@
+global:
+  scrape_interval: 60s
+  scrape_timeout: 60s
+
+  evaluation_interval: 60s
+
+
+scrape_configs:
+
+  # Scrape job for the monitoring host itself
+  - job_name: "prometheus-host-job"
+    static_configs:
+      - targets:
+        - "localhost:9090" # The prometheus instance itself
+    basic_auth:
+      username: prometheus
+      password: Tyt92iwUmNs3xcnFQCf8
+    relabel_configs:
+      # Relabel 'instance' with the hostname on which the prometheus containers are running because 'localhost' and
+      # IPs assigned by docker are not expressive enough
+      - target_label: instance
+        replacement: kaelyn.tangresh.ch
+
+  # Scrape job for generic node exporters
+  - job_name: 'node-exporter-job'
+    static_configs:
+      - targets:
+        - 10.0.0.10:9100
+        labels:
+            device_type: server

@@ -1,0 +1,11 @@
+[Unit]
+Description=quadlet-upgrade test
+
+[Service]
+TimeoutStartSec=900
+
+[Install]
+WantedBy=default.target
+
+[Kube]
+Yaml=/home/tangresh/quadlet-upgrade/test/quadlet-upgrade-test.yaml
