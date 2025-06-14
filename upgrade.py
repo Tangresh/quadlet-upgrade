@@ -1,17 +1,27 @@
 #!/usr/bin/env python3
 
-from podman import PodmanClient
+import os
 import subprocess
+from podman import PodmanClient
 
 # Provide a URI path for the libpod service.  In libpod, the URI can be a unix
 # domain socket(UDS) or TCP.  The TCP connection has not been implemented in this
 # package yet.
 
-uri = "unix:///run/user/1000/podman/podman.sock"
+if os.getuid() == 0:
+    uri = "unix:///run/podman/podman.sock"
+    systemctl_args = []
+else:
+    uri = "unix:///run/user/1000/podman/podman.sock"
+    systemctl_args = ["--user"]
 
 def upgrade():
     with PodmanClient(base_url=uri) as client:
-        for pod in client.pods.list():
+        pods_list = client.pods.list()
+        if len(pods_list) == 0:
+            print("No pods found")
+
+        for pod in pods_list:
             if pod.attrs.get("Labels").get("quadletName") is not None:
                 quadlet_name = pod.attrs.get("Labels").get("quadletName")
             else:
@@ -42,7 +52,10 @@ def upgrade():
             if newer_images_available:
                 answer = input("Restart service {}? [y/N]".format(quadlet_name))
                 if answer == "y":
-                    subprocess.check_call(["systemctl", "--user", "restart", quadlet_name])
+                    restart_args = ["systemctl"]
+                    restart_args += systemctl_args
+                    restart_args += ["restart", quadlet_name]
+                    subprocess.check_call(restart_args)
 
             print()
 
