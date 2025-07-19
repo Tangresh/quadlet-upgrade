@@ -1,7 +1,9 @@
 #!/usr/bin/env -S uv run --script
 
+import sys
 import os
 import subprocess
+from pathlib import Path
 from podman import PodmanClient
 
 # Provide a URI path for the libpod service.  In libpod, the URI can be a unix
@@ -9,11 +11,17 @@ from podman import PodmanClient
 # package yet.
 
 if os.getuid() == 0:
-    uri = "unix:///run/podman/podman.sock"
+    socket_path = Path("/run/podman/podman.sock")
     systemctl_args = []
 else:
-    uri = "unix:///run/user/1000/podman/podman.sock"
+    socket_path = Path("/run/user/{0}/podman/podman.sock".format(os.getuid()))
     systemctl_args = ["--user"]
+
+if not socket_path.exists():
+    print("Socket {0} does not exist".format(socket_path), file=sys.stderr)
+    sys.exit(1)
+
+uri = "unix://{0}".format(socket_path)
 
 def upgrade():
     with PodmanClient(base_url=uri) as client:
